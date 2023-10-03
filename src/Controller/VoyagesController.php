@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Description of VoyagesController
  *
- * @author AurelienSauzet
+ * @author AurelienSauzet <aurelien.sauzet@orange.fr>
  */
 class VoyagesController extends AbstractController{
 
