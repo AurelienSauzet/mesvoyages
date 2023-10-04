@@ -42,6 +42,7 @@ class AdminVoyagesController extends AbstractController {
             'visites' => $visites
         ]);
     }
+    
     /**
      * @Route("/admin/suppr/{id}", name="admin.voyage.suppr")
      * @param Visite $visite
