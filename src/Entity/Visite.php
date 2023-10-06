@@ -3,14 +3,23 @@
 namespace App\Entity;
 
 use App\Repository\VisiteRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: VisiteRepository::class)]
+#[Vich\Uploadable]
 class Visite
 {
+    // Propriétés
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -23,7 +32,7 @@ class Visite
     private ?string $pays = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $datecreation = null;
+    private ?DateTimeInterface $datecreation = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $note = null;
@@ -38,7 +47,19 @@ class Visite
     private ?int $tempmax = null;
 
     #[ORM\ManyToMany(targetEntity: Environnement::class)]
-    private Collection $environnements;
+    private ?Collection $environnements;
+    
+    #[Vich\UploadableField(mapping: 'visites', fileNameProperty: 'imageName', size: 'imageSize')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageName = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $imageSize = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updated_at = null;
 
     public function __construct()
     {
@@ -50,6 +71,7 @@ class Visite
         return $this->id;
     }
 
+    //Getter et setter des villes.
     public function getVille(): ?string
     {
         return $this->ville;
@@ -62,6 +84,7 @@ class Visite
         return $this;
     }
 
+    //Getter et setter des pays.
     public function getPays(): ?string
     {
         return $this->pays;
@@ -74,12 +97,13 @@ class Visite
         return $this;
     }
 
-    public function getDateCreation(): ?\DateTimeInterface
+    //Getters et setter des dates.
+    public function getDateCreation(): ?DateTimeInterface
     {
         return $this->datecreation;
     }
 
-    public function setDatecreation(?\DateTimeInterface $datecreation): static
+    public function setDatecreation(?DateTimeInterface $datecreation): static
     {
         $this->datecreation = $datecreation;
 
@@ -96,6 +120,7 @@ class Visite
         }
     }
 
+    //Getter et setter des notes.
     public function getNote(): ?int
     {
         return $this->note;
@@ -108,6 +133,7 @@ class Visite
         return $this;
     }
 
+    //Getter et setter des avis.
     public function getAvis(): ?string
     {
         return $this->avis;
@@ -120,6 +146,7 @@ class Visite
         return $this;
     }
 
+    // Getters et setters des températures.
     public function getTempmin(): ?int
     {
         return $this->tempmin;
@@ -144,6 +171,7 @@ class Visite
         return $this;
     }
 
+    //Fonctions des environnements.
     /**
      * @return Collection<int, Environnement>
      */
@@ -166,5 +194,83 @@ class Visite
         $this->environnements->removeElement($environnement);
 
         return $this;
+    }
+    
+    // Getters et setters des images.
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function setImageFile(?File $imageFile): static
+    {
+        $this->imageFile = $imageFile;
+        if ($this->imageFile instanceof UploadedFile)
+        {
+            $this->updated_at = new DateTime('now');
+        }
+        return $this;
+    }
+
+    public function setImageName(?string $imageName): static 
+    {
+        $this->imageName = $imageName;
+        return $this;
+    }
+    
+    public function getImageSize(): ?int 
+    {
+        return $this->imageSize;
+    }
+
+    public function setImageSize(?int $imageSize) 
+    {
+        $this->imageSize = $imageSize;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * @Assert\Callback
+     * @param ExecutionContextInterface $context
+     */
+    public function validate(ExecutionContextInterface $context)
+    {
+        $image = $this->getImageFile();
+        if($image != null && $image != "")
+        {
+            $tailleImage= @getimagesize($image);
+            if(!($tailleImage==false))
+            {
+                if($tailleImage[0]>1300 || $tailleImage[1]>1300)
+                {
+                    $context->buildViolation("Cette image est trop grande (1300x1300 max)")
+                        ->atPath("imageFile")
+                        ->addViolation();
+                }
+            }
+            else
+            {
+                $context->buildViolation("Ce n'est pas une image")
+                        ->atPath("imageFile")
+                        ->addViolation();
+            }
+        }
     }
 }
