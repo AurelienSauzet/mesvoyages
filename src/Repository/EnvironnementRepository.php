@@ -14,8 +14,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Environnement[]    findAll()
  * @method Environnement[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class EnvironnementRepository extends ServiceEntityRepository
-{
+class EnvironnementRepository extends ServiceEntityRepository {
+    
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Environnement::class);

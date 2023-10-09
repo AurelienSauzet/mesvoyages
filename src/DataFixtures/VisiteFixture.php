@@ -9,6 +9,7 @@ use Faker\Factory;
 
 class VisiteFixture extends Fixture
 {
+    
     public function load(ObjectManager $manager): void
     {
         // création du faker pour la génération des valeurs aléatoires

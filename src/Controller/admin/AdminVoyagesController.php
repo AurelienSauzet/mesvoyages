@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Description of AdminVoyagesController
  *
- * @author emds
+ * @author AurelienSauzet <aurelien.sauzet@orange.fr>
  */
 class AdminVoyagesController extends AbstractController {
 
@@ -26,8 +26,7 @@ class AdminVoyagesController extends AbstractController {
      * 
      * @param VisiteRepository $repository
      */
-    public function __construct(VisiteRepository $repository)
-    {
+    public function __construct(VisiteRepository $repository) {
         $this->repository = $repository;
     }
 
@@ -35,8 +34,7 @@ class AdminVoyagesController extends AbstractController {
      * @Route("/admin", name="admin.voyages")
      * @return Response
      */
-    public function index(): Response
-    {
+    public function index(): Response {
         $visites = $this->repository->findAllOrderBy("datecreation", "DESC");
         return $this->render("admin/admin.voyages.html.twig", [
             'visites' => $visites
@@ -48,8 +46,7 @@ class AdminVoyagesController extends AbstractController {
      * @param Visite $visite
      * @return Response
      */
-    public function suppr(Visite $visite): Response
-    {
+    public function suppr(Visite $visite): Response {
         $this->repository->remove($visite, true);
         return $this->redirectToRoute('admin.voyages');
     }
@@ -60,8 +57,7 @@ class AdminVoyagesController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function edit(Visite $visite, Request $request): Response
-    {
+    public function edit(Visite $visite, Request $request): Response {
         $formVisite = $this->createForm(VisiteType::class, $visite);
         
         $formVisite->handleRequest($request);
@@ -82,7 +78,7 @@ class AdminVoyagesController extends AbstractController {
      * @param Request $request
      * @return Response
      */
-    public function ajout(Request $request): Response{
+    public function ajout(Request $request): Response {
         $visite = new Visite();
         $formVisite = $this->createForm(VisiteType::class, $visite);
 

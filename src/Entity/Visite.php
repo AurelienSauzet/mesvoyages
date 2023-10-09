@@ -17,8 +17,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: VisiteRepository::class)]
 #[Vich\Uploadable]
-class Visite
-{
+class Visite {
+    
     // Propriétés
     #[ORM\Id]
     #[ORM\GeneratedValue]
