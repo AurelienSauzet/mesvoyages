@@ -47,7 +47,7 @@ class VisiteRepository extends ServiceEntityRepository {
      */
     public function findAllOrderBy($champ, $ordre): array
     {
-        return $this->createQueryBuilder('v')
+        return $this->createQueryBuilder('v') // Alias de la table
             ->orderBy('v.'.$champ, $ordre)
             ->getQuery()
             ->getResult();
@@ -64,7 +64,7 @@ class VisiteRepository extends ServiceEntityRepository {
     {
         if($valeur=="")
         {
-            return $this->createQueryBuilder('v')
+            return $this->createQueryBuilder('v') // Alias de la table
                 ->orderBy('v.'.$champ, 'ASC')
                 ->getQuery()
                 ->getResult();
@@ -72,13 +72,29 @@ class VisiteRepository extends ServiceEntityRepository {
         else
         {
             return $this->createQueryBuilder('v')
-                ->where('v.'.$champ.'=:valeur')
+                ->andWhere('v.'.$champ.'=:valeur')
                 ->setParameter('valeur', $valeur)
                 ->orderBy('v.datecreation', 'DESC')
                 ->getQuery()
                 ->getResult();
         }
 
+    }
+    
+    /**
+     * Dernier enregistrement de la table selon un champ donné
+     * gardant un certain nombre d'entrées selon la valeur donnée.
+     * @param type $champ
+     * @param type $valeur
+     * @return Visite[]
+     */
+    public function findLast($champ, $valeur): array
+    {
+        return $this->createQueryBuilder('v') // Alias de la table
+            ->orderBy('v.'.$champ, 'DESC')
+            ->setMaxResults($valeur)
+            ->getQuery()
+            ->getResult();
     }
 
 //    /**
