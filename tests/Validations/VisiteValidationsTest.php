@@ -33,19 +33,53 @@ class VisiteValidationsTest extends KernelTestCase {
     }
     
     public function testValidNoteVisite() {
-        $visite = $this->getVisite()->setNote(10);
-        $this->assertErrors($visite, 0);
+         // Note minimale possible
+        $this->assertErrors($this->getVisite()->setNote(0), 0, "0 devrait être valide");
+         // Note quelconque entre les bornes
+        $this->assertErrors($this->getVisite()->setNote(10), 0, "10 devrait être valide");
+         // Note maximale possible
+        $this->assertErrors($this->getVisite()->setNote(20), 0, "20 devrait être valide");
     }
     
     public function testNonValidNoteVisite() {
-        $visite = $this->getVisite()->setNote(21);
-        $this->assertErrors($visite, 1);
+         // Note quelconque invalide en dessous de la limite imposée
+        $this->assertErrors($this->getVisite()->setNote(-413), 1, "-413 ne devrait pas être valide");
+         // Note invalide juste en dessous de la limite imposée
+        $this->assertErrors($this->getVisite()->setNote(-1), 1, "-1 ne devrait pas être valide");
+         // Note invalide juste au dessus de la limite imposée
+        $this->assertErrors($this->getVisite()->setNote(21), 1, "21 ne devrait pas être valide");
+         // Note quelconque invalide au-delà de la limite imposée
+        $this->assertErrors($this->getVisite()->setNote(43), 1, "43 ne devrait pas être valide");
     }
     
-    public function testNonValidTempmaxVisite() {
-        $visite = $this->getVisite()
+    public function testValideTempmaxVisite() {
+         // Comparer deux températures valides qui se suivent
+        $this->assertErrors($this->getVisite()
                 ->setTempmin(20)
-                ->setTempmax(18);
-        $this->assertErrors($visite, 1, "min=20, max=18 devrait retourner échouer");
+                ->setTempmax(21), 0, "min=20, max=21 devrait être valide");
+         // Comparer deux températures valides éloignées
+        $this->assertErrors($this->getVisite()
+                ->setTempmin(0)
+                ->setTempmax(200), 0, "min=0, max=200 devrait être valide");
+    }
+    
+    public function testNonValideTempmaxVisite() {
+         // Comparer deux températures inversées qui se suivent
+        $this->assertErrors($this->getVisite()
+                ->setTempmin(20)
+                ->setTempmax(19), 1, "min=20, max=19 devrait échouer");
+         // Comparer deux températures inversées éloignées
+        $this->assertErrors($this->getVisite()
+                ->setTempmin(200)
+                ->setTempmax(0), 1, "min=202, max=0 devrait échouer");
+    }
+    
+    public function testDateVisite() {
+         // Date antérieure à aujourd'hui valide
+        $this->assertErrors($this->getVisite()->setNote(0), 0, "0 devrait être valide");
+         // Date égale à aujourd'hui valide
+        $this->assertErrors($this->getVisite()->setNote(10), 0, "10 devrait être valide");
+         // Date postérieure à aujourd'hui invalide
+        $this->assertErrors($this->getVisite()->setNote(20), 0, "20 devrait être valide");
     }
 }
